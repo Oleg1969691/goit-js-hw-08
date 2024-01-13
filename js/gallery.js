@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function () {
     const images = [
-    {
+     {
     preview:
       "https://cdn.pixabay.com/photo/2019/05/14/16/43/rchids-4202820__480.jpg",
     original:
@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function () {
     ];
 
     let lightbox;
+    let lightboxImage;
     let closeButton;
 
     const galleryContainer = document.querySelector('.gallery');
@@ -82,30 +83,40 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
         `;
 
-        if (!lightbox) {
-            lightbox = basicLightbox.create(lightboxContent);
+        lightbox = basicLightbox.create(lightboxContent);
 
-            closeButton = lightbox.element().querySelector('.close-button');
+        closeButton = lightbox.element().querySelector('.close-button');
+        lightboxImage = lightbox.element().querySelector('.lightbox-image');
 
-            closeButton.addEventListener('click', () => {
-                closeLightbox();
-            });
+        closeButton.addEventListener('click', () => {
+            closeLightbox();
+        });
 
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape') {
-                    closeLightbox();
-                }
-            });
-        } else {
-            const lightboxImage = lightbox.element().querySelector('.lightbox-image');
-            lightboxImage.src = imageSrc;
-            lightbox.show();
-        }
+        document.addEventListener('keydown', handleKeyDown);
+
+        lightbox.show();
     }
 
     function closeLightbox() {
         lightbox.close();
+        lightboxImage.src = ''; 
     }
+
+    function handleKeyDown(event) {
+        if (event.key === 'Escape') {
+            closeLightbox();
+        }
+    }
+
+    galleryContainer.addEventListener('click', (event) => {
+        event.preventDefault();
+        const target = event.target;
+
+        if (target.classList.contains('gallery-image')) {
+            const largeImageSrc = target.dataset.source;
+            openLightbox(largeImageSrc);
+        }
+    });
 
     images.forEach(image => {
         const listItem = document.createElement('li');
@@ -124,12 +135,5 @@ document.addEventListener('DOMContentLoaded', function () {
         link.appendChild(img);
         listItem.appendChild(link);
         galleryContainer.appendChild(listItem);
-
-        link.addEventListener('click', (event) => {
-            event.preventDefault();
-            const largeImageSrc = event.currentTarget.querySelector('.gallery-image').dataset.source;
-
-            openLightbox(largeImageSrc);
-        });
     });
 });
